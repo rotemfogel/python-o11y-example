@@ -1,0 +1,35 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+exporters:
+  # Metrics → VictoriaMetrics (appends /v1/metrics to the endpoint)
+  otlphttp/victoriametrics:
+    endpoint: http://victoria-metrics:8428/opentelemetry
+    tls:
+      insecure: true
+
+  # Logs → VictoriaLogs (appends /v1/logs to the endpoint)
+  otlphttp/victorialogs:
+    endpoint: http://victoria-logs:9428/insert/opentelemetry
+    tls:
+      insecure: true
+
+  debug:
+    verbosity: basic
+
+service:
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      exporters: [otlphttp/victoriametrics]
+    logs:
+      receivers: [otlp]
+      exporters: [otlphttp/victorialogs]
+    traces:
+      receivers: [otlp]
+      exporters: [debug]
